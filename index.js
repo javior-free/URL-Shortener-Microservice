@@ -60,12 +60,17 @@ app.get('/api/shorturl/:short_url', (req, res) => {
   const entry = urlDatabase.find(obj => obj.short_url === short);
 
   if (entry) {
-    return res.redirect(entry.original_url);
-  } 
+    // Aseguramos que la URL tenga http o https al inicio
+    let url = entry.original_url;
+    if (!/^https?:\/\//i.test(url)) {
+      url = 'http://' + url;
+    }
+    return res.redirect(url);
+  }
 
-return res.json({ error: 'No short URL found' });
-  
+  return res.json({ error: 'No short URL found' });
 });
+
 
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
