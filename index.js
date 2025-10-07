@@ -28,27 +28,25 @@ const urlDatabase = [];
 app.post('/api/shorturl', (req, res) => {
   const originalUrl = req.body.url;
 
-  // Si no hay valor o no empieza con http
+  
   if (!originalUrl || !/^https?:\/\//i.test(originalUrl)) {
     return res.json({ error: 'invalid url' });
   }
 
-  // Eliminar protocolo y path, dejando solo el hostname
-  let hostname = originalUrl.replace(/^https?:\/\//, '').split('/')[0];
+  
+  const hostname = originalUrl.replace(/^https?:\/\//, '').split('/')[0].replace(/\/$/, '');
 
-  // Verificar dominio con dns.lookup
+  
   dns.lookup(hostname, (err) => {
     if (err) {
       return res.json({ error: 'invalid url' });
     }
 
-    // Verificar si ya existe en la base
     let found = urlDatabase.find(obj => obj.original_url === originalUrl);
     if (found) {
       return res.json(found);
     }
 
-    // Crear un nuevo short_url
     const shortUrl = urlDatabase.length + 1;
 
     const entry = {
@@ -61,7 +59,6 @@ app.post('/api/shorturl', (req, res) => {
   });
 });
 
-// GET /api/shorturl/:short_url
 app.get('/api/shorturl/:short_url', (req, res) => {
   const short = Number(req.params.short_url);
   const entry = urlDatabase.find(obj => obj.short_url === short);
