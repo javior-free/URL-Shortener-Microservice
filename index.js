@@ -33,7 +33,7 @@ app.post('/api/shorturl', (req, res) => {
         return res.json({error: 'invalid url'});
       }
 
-      const shorUrl = urlDatabase.length + 1;
+      const shortUrl = urlDatabase.length + 1;
       urlDatabase.push({original_url: originalUrl, short_url: shortUrl});
 
       res.json({original_url:originalUrl, shortUrl: shortUrl});
