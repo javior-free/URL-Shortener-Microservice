@@ -28,14 +28,13 @@ const urlDatabase = [];
 app.post('/api/shorturl', (req, res) => {
   const originalUrl = req.body.url;
 
-  // Validar formato con una expresión regular simple
-  const urlPattern = /^https?:\/\/(.*)/i;
-  if (!urlPattern.test(originalUrl)) {
+  // Si no hay valor o no empieza con http
+  if (!originalUrl || !/^https?:\/\//i.test(originalUrl)) {
     return res.json({ error: 'invalid url' });
   }
 
-  // Extraer el hostname (sin usar try/catch)
-  const hostname = originalUrl.replace(/^https?:\/\//, '').split('/')[0];
+  // Eliminar protocolo y path, dejando solo el hostname
+  let hostname = originalUrl.replace(/^https?:\/\//, '').split('/')[0];
 
   // Verificar dominio con dns.lookup
   dns.lookup(hostname, (err) => {
@@ -43,18 +42,22 @@ app.post('/api/shorturl', (req, res) => {
       return res.json({ error: 'invalid url' });
     }
 
-    // Crear short_url
+    // Verificar si ya existe en la base
+    let found = urlDatabase.find(obj => obj.original_url === originalUrl);
+    if (found) {
+      return res.json(found);
+    }
+
+    // Crear un nuevo short_url
     const shortUrl = urlDatabase.length + 1;
 
-    urlDatabase.push({
+    const entry = {
       original_url: originalUrl,
       short_url: shortUrl
-    });
+    };
 
-    res.json({
-      original_url: originalUrl,
-      short_url: shortUrl
-    });
+    urlDatabase.push(entry);
+    res.json(entry);
   });
 });
 
@@ -65,9 +68,9 @@ app.get('/api/shorturl/:short_url', (req, res) => {
 
   if (entry) {
     res.redirect(entry.original_url);
-  } else {
+  } 
     res.json({ error: 'No short URL found' });
-  }
+  
 });
 
 app.listen(port, function() {
