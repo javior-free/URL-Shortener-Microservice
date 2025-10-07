@@ -30,16 +30,16 @@ app.post('/api/shorturl', (req, res) => {
 
     dns.lookup(hostname, (err) =>{
       if (err) {
-        return res.json({error: 'invalid url'});
+        return res.json({ error: 'invalid url' });
       }
 
       const shortUrl = urlDatabase.length + 1;
-      urlDatabase.push({original_url: originalUrl, short_url: shortUrl});
+      urlDatabase.push({ original_url: originalUrl, short_url: shortUrl });
 
-      res.json({original_url:originalUrl, shortUrl: shortUrl});
+      res.json({ original_url: originalUrl, short_url: shortUrl });
     });
   } catch (err) {
-    res.json({ error: 'invalid url'});
+    res.json({ error: 'invalid url' });
   }
 });
 
