@@ -56,20 +56,20 @@ app.post('/api/shorturl', (req, res) => {
 });
 
 app.get('/api/shorturl/:short_url', (req, res) => {
-  const short = Number(req.params.short_url);
-  const entry = urlDatabase.find(obj => obj.short_url === short);
+  const short = parseInt(req.params.short_url);
+  const entry = urlDatabase.find(obj => obj.short_url == short);
 
   if (entry) {
-    // Aseguramos que la URL tenga http o https al inicio
     let url = entry.original_url;
     if (!/^https?:\/\//i.test(url)) {
       url = 'http://' + url;
     }
-    return res.redirect(url);
+    return res.status(302).redirect(url);
   }
 
   return res.json({ error: 'No short URL found' });
 });
+
 
 
 app.listen(port, function() {
